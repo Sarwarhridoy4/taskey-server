@@ -14,13 +14,13 @@ app.use(express.json());
 //Database connection
 
 const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.9rpk71q.mongodb.net/?retryWrites=true&w=majority`;
-console.log(uri);
+
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 async function run() {
     try {
         const TaskCollection = client.db("Taskey").collection("TaskCollection");
-        
+        //adding a task
         app.post('/add-task', async (req, res) => {
             const task = req.body;
             console.log(task);
@@ -28,6 +28,35 @@ async function run() {
             console.log(result);
             res.send(result);
         });
+
+        app.get('/my-task/', async (req, res) => {
+            const query = {}
+            const result = await TaskCollection.find(query).toArray();
+            res.send(result);
+            
+        })
+        // delete a task
+        app.delete('/my-task/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await TaskCollection.deleteOne(query);
+            res.send(result);
+        });
+
+        // update a task  
+        app.put('/add-task/:id', async (req, res) => {
+            const id = req.params.id;
+            const addTask = req.body;
+            const filter = { _id: ObjectId(id) }
+            const options = { upsert: true }
+            const updateDoc = {
+                $set: addTask,
+            }
+            const result = await TaskCollection.updateOne(filter, updateDoc, options)
+            res.send(result)
+        });
+
+
     }
     finally {
         
