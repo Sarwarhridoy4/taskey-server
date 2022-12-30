@@ -29,8 +29,10 @@ async function run() {
             res.send(result);
         });
 
-        app.get('/my-task/', async (req, res) => {
-            const query = {}
+        app.get('/my-task/:email', async (req, res) => {
+            const email = req.params.email
+            const query = { email }
+            // console.log(query);
             const result = await TaskCollection.find(query).toArray();
             res.send(result);
             
